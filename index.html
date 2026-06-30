@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificación de Campañas II - Cátedra Solares Costa</title>
+<style>
+  :root{
+    --bg1:#1a1530;
+    --bg2:#2d1b4e;
+    --accent:#ff6b35;
+    --accent2:#ffd23f;
+    --accent3:#6a4c93;
+    --text:#f4f1f8;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(circle at 50% 20%, var(--bg2), var(--bg1));
+    color:var(--text);
+    overflow:hidden;
+  }
+  .wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    height:100%;
+    padding:18px 10px 10px;
+  }
+  h1{
+    text-align:center;
+    font-size:clamp(1.1rem,2.4vw,2rem);
+    margin:0 0 14px;
+    letter-spacing:0.5px;
+    text-shadow:0 0 18px rgba(255,107,53,0.5);
+  }
+  h1 .sub{
+    display:block;
+    font-size:0.55em;
+    font-weight:400;
+    opacity:0.75;
+    margin-top:4px;
+  }
+  .stage{
+    position:relative;
+    width:min(62vh,520px);
+    height:min(62vh,520px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .pointer{
+    position:absolute;
+    top:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:22px solid transparent;
+    border-right:22px solid transparent;
+    border-top:38px solid var(--accent2);
+    filter:drop-shadow(0 0 8px rgba(255,210,63,0.8));
+    z-index:5;
+  }
+  #wheel{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    display:block;
+    box-shadow:
+      0 0 0 8px #3a2a5c,
+      0 0 0 12px var(--accent2),
+      0 10px 40px rgba(0,0,0,0.6);
+    transition: transform 5.5s cubic-bezier(0.12,0.67,0.18,1);
+  }
+  .hub{
+    position:absolute;
+    width:18%;
+    height:18%;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fff6, var(--accent3) 60%, #1a1530 100%);
+    border:3px solid var(--accent2);
+    z-index:4;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+  }
+  #spinBtn{
+    margin-top:18px;
+    padding:12px 38px;
+    font-size:1.1rem;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#1a1530;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border:none;
+    border-radius:40px;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(255,107,53,0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-transform:uppercase;
+  }
+  #spinBtn:hover{ transform:translateY(-2px); box-shadow:0 9px 22px rgba(255,107,53,0.6); }
+  #spinBtn:active{ transform:translateY(1px); }
+  #spinBtn:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(10,6,20,0.93);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:5vw;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.45s ease;
+    z-index:50;
+    text-align:center;
+  }
+  .overlay.show{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .overlay .question{
+    font-size:clamp(1.6rem,4.4vw,3.4rem);
+    font-weight:700;
+    line-height:1.3;
+    max-width:1100px;
+    text-shadow:0 0 30px rgba(255,107,53,0.5);
+    animation: pop 0.5s ease;
+  }
+  @keyframes pop{
+    0%{ transform:scale(0.85); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .overlay .hint{
+    position:absolute;
+    bottom:30px;
+    font-size:0.95rem;
+    opacity:0.55;
+  }
+  .overlay .close{
+    position:absolute;
+    top:24px;
+    right:32px;
+    font-size:1.8rem;
+    cursor:pointer;
+    opacity:0.6;
+    background:none;
+    border:none;
+    color:var(--text);
+  }
+  .overlay .close:hover{ opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Planificación de Campañas II<span class="sub">Cátedra Solares Costa</span></h1>
+
+  <div class="stage">
+    <div class="pointer"></div>
+    <svg id="wheel" viewBox="0 0 500 500"></svg>
+    <div class="hub"></div>
+  </div>
+
+  <button id="spinBtn">Girar</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <button class="close" id="closeBtn" title="Cerrar">✕</button>
+  <div class="question" id="questionText"></div>
+  <div class="hint">Hacé click en cualquier lado para cerrar y volver a girar</div>
+</div>
+
+<script>
+const questions = [
+  "¿Cuál fue la pieza que más te costó hacer y por qué?",
+  "¿Te llevás algún aprendizaje de esta cursada? ¿Cuál?",
+  "Si pudieras hacer la cursada de 0, ¿elegirías nuevamente la misma marca?",
+  "Si pudieras hacer la cursada de 0, ¿elegirías nuevamente el mismo partido conceptual?",
+  "¿Qué revisarías antes de implementar esta campaña en la realidad?",
+  "Incluyendo el BTL y la colaboración, ¿creés que alguna pieza de tu campaña se despega del sistema?",
+  "¿Considerás que se trata de una campaña abierta o cerrada?",
+  "¿Qué aprendizaje personal destacás del proceso de la planificación de esta campaña?",
+  "¿Creés que sin el afiche la campaña funcionaría igual? ¿Sumarías más piezas impresas?",
+  "¿Cuál creés que es el punto fuerte de tu campaña y por qué?",
+  "¿Cuál creés que es el punto débil a mejorar de tu campaña?"
+];
+
+const colors = ["#ff6b35","#6a4c93","#ffd23f","#3a86ff","#ff5d8f","#2ec4b6","#f4a261","#8338ec","#06d6a0","#e63946","#ffb703"];
+
+const wheel = document.getElementById('wheel');
+const n = questions.length;
+const cx = 250, cy = 250, r = 248;
+
+function describeSlice(i){
+  const angleStep = 360 / n;
+  const startAngle = i * angleStep;
+  const endAngle = startAngle + angleStep;
+  const start = polar(cx, cy, r, startAngle);
+  const end = polar(cx, cy, r, endAngle);
+  const largeArc = angleStep > 180 ? 1 : 0;
+  return `M${cx},${cy} L${start.x},${start.y} A${r},${r} 0 ${largeArc} 1 ${end.x},${end.y} Z`;
+}
+function polar(cx, cy, r, angleDeg){
+  const a = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+for(let i=0;i<n;i++){
+  const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+  path.setAttribute("d", describeSlice(i));
+  path.setAttribute("fill", colors[i % colors.length]);
+  path.setAttribute("stroke", "#1a1530");
+  path.setAttribute("stroke-width", "2");
+  wheel.appendChild(path);
+
+  // number label
+  const midAngle = (i + 0.5) * (360/n);
+  const labelPos = polar(cx, cy, r*0.72, midAngle);
+  const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+  text.setAttribute("x", labelPos.x);
+  text.setAttribute("y", labelPos.y);
+  text.setAttribute("fill", "#1a1530");
+  text.setAttribute("font-size", "26");
+  text.setAttribute("font-weight", "800");
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("dominant-baseline", "middle");
+  text.setAttribute("transform", `rotate(${midAngle}, ${labelPos.x}, ${labelPos.y})`);
+  text.textContent = (i+1);
+  wheel.appendChild(text);
+}
+
+// --- Audio (Web Audio API, sin archivos externos) ---
+let audioCtx;
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tick(){
+  const ctx = getCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "square";
+  o.frequency.value = 1000;
+  g.gain.value = 0.06;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+  o.stop(ctx.currentTime + 0.06);
+}
+function winSound(){
+  const ctx = getCtx();
+  const freqs = [523.25, 659.25, 783.99, 1046.50];
+  freqs.forEach((f, idx)=>{
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.value = f;
+    g.gain.value = 0.0001;
+    o.connect(g); g.connect(ctx.destination);
+    const t = ctx.currentTime + idx*0.12;
+    o.start(t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t+0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.4);
+    o.stop(t+0.42);
+  });
+}
+
+// ticking sound during spin
+let tickInterval = null;
+function startTicking(durationMs){
+  let elapsed = 0;
+  let delay = 60;
+  function loop(){
+    if(elapsed >= durationMs) return;
+    tick();
+    delay = Math.min(delay * 1.045, 300);
+    elapsed += delay;
+    tickInterval = setTimeout(loop, delay);
+  }
+  loop();
+}
+
+// --- Spin logic ---
+let currentRotation = 0;
+let spinning = false;
+const spinBtn = document.getElementById('spinBtn');
+const overlay = document.getElementById('overlay');
+const questionText = document.getElementById('questionText');
+const closeBtn = document.getElementById('closeBtn');
+
+spinBtn.addEventListener('click', () => {
+  if(spinning) return;
+  spinning = true;
+  spinBtn.disabled = true;
+
+  getCtx(); // unlock audio on user gesture
+
+  const angleStep = 360 / n;
+  const randomIndex = Math.floor(Math.random() * n);
+  // we want the randomIndex slice to end up under the pointer (angle 0 / top)
+  // slice i occupies [i*step, (i+1)*step]; its center is at i*step + step/2
+  const sliceCenter = randomIndex * angleStep + angleStep/2;
+  const extraSpins = 6 + Math.floor(Math.random()*3); // 6-8 full turns
+  const randomJitter = (Math.random()*angleStep*0.6) - (angleStep*0.3);
+
+  // target rotation so that sliceCenter ends at top (0deg), accounting for current rotation
+  const targetMod = (360 - sliceCenter + randomJitter + 360) % 360;
+  const currentMod = ((currentRotation % 360) + 360) % 360;
+  let delta = targetMod - currentMod;
+  if(delta < 0) delta += 360;
+  const finalRotation = currentRotation + extraSpins*360 + delta;
+
+  wheel.style.transform = `rotate(${finalRotation}deg)`;
+  currentRotation = finalRotation;
+
+  startTicking(5400);
+
+  setTimeout(() => {
+    winSound();
+    questionText.textContent = questions[randomIndex];
+    overlay.classList.add('show');
+    spinning = false;
+    spinBtn.disabled = false;
+  }, 5600);
+});
+
+function closeOverlay(){
+  overlay.classList.remove('show');
+}
+overlay.addEventListener('click', closeOverlay);
+closeBtn.addEventListener('click', (e)=>{ e.stopPropagation(); closeOverlay(); });
+</script>
+
+</body>
+</html>
