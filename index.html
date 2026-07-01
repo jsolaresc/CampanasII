@@ -6,12 +6,15 @@
 <title>Planificación de Campañas II - Cátedra Solares Costa</title>
 <style>
   :root{
-    --bg1:#1a1530;
-    --bg2:#2d1b4e;
-    --accent:#ff6b35;
-    --accent2:#ffd23f;
-    --accent3:#6a4c93;
-    --text:#f4f1f8;
+    --bg1:#1e1628;
+    --bg2:#2a1e40;
+    --pink:#F8C8DC;
+    --green:#CDECCF;
+    --blue:#CFEFFF;
+    --yellow:#FFF4B8;
+    --ring:#e8d5f5;
+    --text:#f0ecf8;
+    --dark:#2a1a3e;
   }
   *{box-sizing:border-box;}
   html,body{
@@ -37,7 +40,7 @@
     font-size:clamp(1.1rem,2.4vw,2rem);
     margin:0;
     letter-spacing:0.5px;
-    text-shadow:0 0 18px rgba(255,107,53,0.5);
+    text-shadow:0 0 22px rgba(248,200,220,0.55);
   }
   h1 .sub{
     display:block;
@@ -64,8 +67,8 @@
     height:0;
     border-left:22px solid transparent;
     border-right:22px solid transparent;
-    border-top:38px solid var(--accent2);
-    filter:drop-shadow(0 0 8px rgba(25,21,23,0.8));
+    border-top:38px solid var(--ring);
+    filter:drop-shadow(0 0 8px rgba(34, 34, 34, 0.8));
     z-index:5;
   }
   #wheel{
@@ -74,9 +77,9 @@
     border-radius:50%;
     display:block;
     box-shadow:
-      0 0 0 8px #3a2a5c,
-      0 0 0 12px var(--accent2),
-      0 10px 40px rgba(0,0,0,0.6);
+      0 0 0 7px #3d2c5e,
+      0 0 0 11px var(--ring),
+      0 10px 40px rgba(0,0,0,0.5);
     transition: transform 5.5s cubic-bezier(0.12,0.67,0.18,1);
   }
   .hub{
@@ -84,8 +87,8 @@
     width:18%;
     height:18%;
     border-radius:50%;
-    background: radial-gradient(circle at 35% 30%, #fff6, var(--accent3) 60%, #1a1530 100%);
-    border:3px solid var(--accent2);
+    background: radial-gradient(circle at 35% 30%, #fff8 60%, #b8a8d8 100%);
+    border:3px solid var(--ring);
     z-index:4;
     box-shadow:0 0 20px rgba(0,0,0,0.5);
   }
@@ -95,23 +98,23 @@
     font-size:1.1rem;
     font-weight:700;
     letter-spacing:1px;
-    color:#1a1530;
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color:var(--dark);
+    background: linear-gradient(135deg, var(--pink), var(--green));
     border:none;
     border-radius:40px;
     cursor:pointer;
-    box-shadow:0 6px 18px rgba(255,107,53,0.45);
+    box-shadow:0 6px 20px rgba(248,200,220,0.35);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     text-transform:uppercase;
   }
-  #spinBtn:hover{ transform:translateY(-2px); box-shadow:0 9px 22px rgba(255,107,53,0.6); }
+  #spinBtn:hover{ transform:translateY(-2px); box-shadow:0 9px 26px rgba(248,200,220,0.55); }
   #spinBtn:active{ transform:translateY(1px); }
-  #spinBtn:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+  #spinBtn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
 
   .overlay{
     position:fixed;
     inset:0;
-    background: rgba(10,6,20,0.93);
+    background: rgba(18,10,32,0.94);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -131,7 +134,7 @@
     font-weight:700;
     line-height:1.3;
     max-width:1100px;
-    text-shadow:0 0 30px rgba(255,107,53,0.5);
+    text-shadow:0 0 35px rgba(248,200,220,0.5);
     animation: pop 0.5s ease;
   }
   @keyframes pop{
@@ -194,7 +197,7 @@ const questions = [
   "¿Te llevás algún aprendizaje de esta cursada? ¿Cuál?"
 ];
 
-const colors = ["F8C8DC", "CDECCF", "CFEFFF", "FFF4B8"];
+const colors = ["#F8C8DC","#CDECCF","#CFEFFF","#FFF4B8","#F8C8DC","#CDECCF","#CFEFFF","#FFF4B8","#F8C8DC","#CDECCF","#CFEFFF","#FFF4B8"];
 
 const wheel = document.getElementById('wheel');
 const n = questions.length;
@@ -218,7 +221,7 @@ for(let i=0;i<n;i++){
   const path = document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("d", describeSlice(i));
   path.setAttribute("fill", colors[i % colors.length]);
-  path.setAttribute("stroke", "#1a1530");
+  path.setAttribute("stroke", "#7a6a9a");
   path.setAttribute("stroke-width", "2");
   wheel.appendChild(path);
 
